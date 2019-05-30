@@ -1,29 +1,32 @@
-package com.example.hostelautomation;
+package com.example.hostelautomation.Fragments;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.hostelautomation.Adapter.RoomsAdapter;
-import com.shrikanthravi.customnavigationdrawer2.data.MenuItem;
-import com.shrikanthravi.customnavigationdrawer2.widget.SNavigationDrawer;
+import com.example.hostelautomation.MainActivity;
+import com.example.hostelautomation.R;
+import com.example.hostelautomation.RoomActivity;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+import static android.content.Context.MODE_PRIVATE;
+
+public class MainFragment extends Fragment {
 
     private static final String PREFS_NAME = "userName";
 
@@ -37,19 +40,25 @@ public class MainActivity extends AppCompatActivity {
 
     TextView userName;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_main, container, false);
+    }
 
-        userName = (TextView) findViewById(R.id.user_name);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+        userName = (TextView) view.findViewById(R.id.user_name);
+
+        SharedPreferences preferences = this.getActivity().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String name = preferences.getString("user_name", "User");
         userName.setText(name);
 
-        recyclerView = (RecyclerView) findViewById(R.id.roomsRecycler);
-        RecyclerViewLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView = (RecyclerView) view.findViewById(R.id.roomsRecycler);
+        RecyclerViewLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(RecyclerViewLayoutManager);
 
         // Adding items to recycler view
@@ -59,14 +68,14 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerViewHorizontalAdapter = new RoomsAdapter(list);
 
-        HorizontalLayout = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
+        HorizontalLayout = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(HorizontalLayout);
 
         recyclerView.setAdapter(RecyclerViewHorizontalAdapter);
 
         recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
 
-            GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
+            GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
 
                 @Override public boolean onSingleTapUp(MotionEvent motionEvent) {
 
@@ -85,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                     //Getting clicked value.
                     RecyclerViewItemPosition = recyclerView.getChildAdapterPosition(ChildView);
 
-                    Intent intent = new Intent(MainActivity.this, RoomActivity.class);
+                    Intent intent = new Intent(getContext(), RoomActivity.class);
                     intent.putExtra("room_name", list.get(RecyclerViewItemPosition).first);
                     startActivity(intent);
                 }
@@ -105,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
 
     private class AddItemsToRecyclerView extends AsyncTask<Void,Void,Void> {
         @Override

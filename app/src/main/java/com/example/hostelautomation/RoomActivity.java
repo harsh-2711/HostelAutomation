@@ -31,7 +31,14 @@ import java.util.ArrayList;
 public class RoomActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "AppliancesStates";
+    private static final String ROOM_NAME = "Room";
     private static final String SEPERATOR = "/";
+
+    private static final String LIVING_ROOM_1 = "LR_IP1";
+    private static final String LIVING_ROOM_2 = "LR_IP2";
+    private static final String MASTER_BEDROOM = "MB_IP1";
+    private static final String BEDROOM = "B_IP1";
+    private static final String KITCHEN = "K_IP1";
 
     private static final Integer TV = 1;
     private static final Integer FAN = 2;
@@ -51,6 +58,8 @@ public class RoomActivity extends AppCompatActivity {
     LinearLayoutManager HorizontalLayout ;
     View ChildView ;
     int RecyclerViewItemPosition ;
+
+    String ip = "255.255.255.0";
 
     ImageView back;
     RelativeLayout roomRelativeLayout;
@@ -73,8 +82,31 @@ public class RoomActivity extends AppCompatActivity {
         String room = intent.getStringExtra("room_name");
         roomName.setText(room);
 
-        final String ip = "255.255.255.0";
+        switch (room) {
+            case "Living Room":
+                SharedPreferences preferences1 = getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
+                ip = preferences1.getString("lr_ip1", "255.255.0");
+                break;
+            case "Master Bedroom":
+                SharedPreferences preferences3 = getSharedPreferences(MASTER_BEDROOM, MODE_PRIVATE);
+                ip = preferences3.getString("mb_ip1", "255.255.0");
+                break;
+            case "Bedroom":
+                SharedPreferences preferences4 = getSharedPreferences(BEDROOM, MODE_PRIVATE);
+                ip = preferences4.getString("b_ip1", "255.255.0");
+                break;
+            case "Kitchen":
+                SharedPreferences preferences5 = getSharedPreferences(KITCHEN, MODE_PRIVATE);
+                ip = preferences5.getString("k_ip1", "255.255.0");
+                break;
+            default:
+                break;
+        }
         setBackground(room);
+
+        SharedPreferences.Editor editor = getSharedPreferences(ROOM_NAME, MODE_PRIVATE).edit();
+        editor.putString("room_name", room);
+        editor.apply();
 
         RecyclerViewLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(RecyclerViewLayoutManager);
@@ -123,7 +155,8 @@ public class RoomActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
                         editor.putBoolean(code, false);
                         editor.apply();
-                        webView.loadUrl("http://" + ip + SEPERATOR + code + "off");
+                        webView.loadUrl("http://" + ip + SEPERATOR + code + "0");
+                        //Toast.makeText(getApplicationContext(), "http://" + ip + SEPERATOR + code + "0", Toast.LENGTH_LONG).show();
 
                         String appl_name = list.get(RecyclerViewItemPosition).first.first.first;
                         String appl_code = list.get(RecyclerViewItemPosition).first.second;
@@ -156,7 +189,8 @@ public class RoomActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
                         editor.putBoolean(code, true);
                         editor.apply();
-                        webView.loadUrl("http://" + ip + SEPERATOR + code + "on");
+                        webView.loadUrl("http://" + ip + SEPERATOR + code + "1");
+                        //Toast.makeText(getApplicationContext(), "http://" + ip + SEPERATOR + code + "1", Toast.LENGTH_LONG).show();
 
                         String appl_name = list.get(RecyclerViewItemPosition).first.first.first;
                         String appl_code = list.get(RecyclerViewItemPosition).first.second;
@@ -242,10 +276,33 @@ public class RoomActivity extends AppCompatActivity {
             switch (strings[0]) {
                 case "Living Room":
                     addTV("TV", "htv");
-                    addFan("Fan", "hf1");
-                    addLight("Light", "hl1");
                     addChandelier("Chandelier", "hc");
-                    addSocket("Socket", "hc1");
+                    addLight("Light", "hl1");
+                    addFan("Fan 1", "hf");
+                    addFan("Fan 2", "hf");
+                    addLight("LED 1", "hl1");
+                    addLight("LED 2", "hl2");
+                    addLight("LED 3", "hl3");
+                    addLight("LED 4", "hl4");
+                    addSocket("Charging Plug", "hc");
+                    break;
+                case "Kitchen":
+                    addSocket("RO", "krO");
+                    addLight("Light", "kl1");
+                    addFan("Fan", "kf1");
+                    addSocket("Charging Plug", "kc1");
+                    break;
+                case "Master Bedroom":
+                    addFan("Fan", "r1f1");
+                    addLight("Light 1", "r1l1");
+                    addLight("Light 2", "r1l2");
+                    addSocket("Charging Plug", "r1c1");
+                    break;
+                case "Bedroom":
+                    addFan("Fan", "r2f1");
+                    addLight("Light", "r2l1");
+                    addLight("Bathroom Light", "r1l2");
+                    addSocket("Charging Plug", "r2c1");
                     break;
                 default:
                     addTV("TV", "htv");
@@ -312,6 +369,16 @@ public class RoomActivity extends AppCompatActivity {
                 });
                 break;
             case "Master Bedroom":
+                Glide.with(this).load(R.drawable.master_bedroom_portrait).into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            roomRelativeLayout.setBackground(resource);
+                        }
+                    }
+                });
+                break;
+            case "Bedroom":
                 Glide.with(this).load(R.drawable.bedroom_portrait).into(new SimpleTarget<Drawable>() {
                     @Override
                     public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
