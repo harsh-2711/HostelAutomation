@@ -22,9 +22,9 @@ public class CustomDialog extends Dialog {
     private static final String PREFS_NAME = "FanSpeed";
     private static final String ROOM_NAME = "Room";
     private static final String SEPERATOR = "/";
+    private static final String PREFS_FAN = "fan_selected";
 
     private static final String LIVING_ROOM_1 = "LR_IP1";
-    private static final String LIVING_ROOM_2 = "LR_IP2";
     private static final String MASTER_BEDROOM = "MB_IP1";
     private static final String BEDROOM = "B_IP1";
     private static final String KITCHEN = "K_IP1";
@@ -92,7 +92,7 @@ public class CustomDialog extends Dialog {
                     case "Living Room":
                         code = "hfs";
                         SharedPreferences preferences2 = c.getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
-                        ip = preferences1.getString("lr_ip1", "255.255.0");
+                        ip = preferences2.getString("lr_ip1", "255.255.0");
                         break;
                     case "Kitchen":
                         code = "kfs";
@@ -113,9 +113,24 @@ public class CustomDialog extends Dialog {
                         break;
                 }
 
+                if(room.equals("Living Room")) {
+                    SharedPreferences preferences = c.getSharedPreferences(PREFS_FAN, MODE_PRIVATE);
+                    String name = preferences.getString("fan_selected", "Fan 1");
+                    //Toast.makeText(getContext(), name, Toast.LENGTH_SHORT).show();
+                    if(name.equals("Fan 1")) {
+                        SharedPreferences preferences20 = c.getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
+                        ip = preferences20.getString("lr_ip1", "255.255.0");
+                    }
+                    else {
+                        SharedPreferences preferences21 = c.getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
+                        ip = preferences21.getString("lr_ip2", "255.255.0");
+                    }
+                }
+
                 SharedPreferences preferences = c.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
                 String progress = preferences.getString("fan_speed" + code, "0");
                 webView.loadUrl("http://" + ip + SEPERATOR + code + progress);
+                //Toast.makeText(getContext(), ip, Toast.LENGTH_SHORT).show();
                 dismiss();
             }
         });

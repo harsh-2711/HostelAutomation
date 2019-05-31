@@ -43,7 +43,7 @@ public class LivingRoomFragment extends Fragment {
             lr1.setText(ip);
         }
 
-        SharedPreferences preferences1 = getActivity().getSharedPreferences(P2, Context.MODE_PRIVATE);
+        SharedPreferences preferences1 = getActivity().getSharedPreferences(P1, Context.MODE_PRIVATE);
         String ip2 = preferences1.getString("lr_ip2", "255.255.0");
         if(!ip2.equals("") && !ip2.equals("255.255.0")) {
             lr2.setText(ip2);
@@ -60,7 +60,7 @@ public class LivingRoomFragment extends Fragment {
                 p1.putString("lr_ip1", ip1);
                 p1.apply();
 
-                SharedPreferences.Editor p2 = getActivity().getSharedPreferences(P2, Context.MODE_PRIVATE).edit();
+                SharedPreferences.Editor p2 = getActivity().getSharedPreferences(P1, Context.MODE_PRIVATE).edit();
                 p2.putString("lr_ip2", ip2);
                 p2.apply();
 

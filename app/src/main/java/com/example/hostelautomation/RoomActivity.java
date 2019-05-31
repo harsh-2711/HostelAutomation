@@ -33,9 +33,9 @@ public class RoomActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "AppliancesStates";
     private static final String ROOM_NAME = "Room";
     private static final String SEPERATOR = "/";
+    private static final String PREFS_FAN = "fan_selected";
 
     private static final String LIVING_ROOM_1 = "LR_IP1";
-    private static final String LIVING_ROOM_2 = "LR_IP2";
     private static final String MASTER_BEDROOM = "MB_IP1";
     private static final String BEDROOM = "B_IP1";
     private static final String KITCHEN = "K_IP1";
@@ -64,6 +64,7 @@ public class RoomActivity extends AppCompatActivity {
     ImageView back;
     RelativeLayout roomRelativeLayout;
     TextView roomName;
+    String room;
 
     WebView webView;
 
@@ -79,13 +80,13 @@ public class RoomActivity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.webView);
 
         Intent intent = getIntent();
-        String room = intent.getStringExtra("room_name");
+        room = intent.getStringExtra("room_name");
         roomName.setText(room);
 
         switch (room) {
             case "Living Room":
                 SharedPreferences preferences1 = getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
-                ip = preferences1.getString("lr_ip1", "255.255.0");
+                ip = preferences1.getString("lr_ip2", "255.255.0");
                 break;
             case "Master Bedroom":
                 SharedPreferences preferences3 = getSharedPreferences(MASTER_BEDROOM, MODE_PRIVATE);
@@ -104,7 +105,7 @@ public class RoomActivity extends AppCompatActivity {
         }
         setBackground(room);
 
-        SharedPreferences.Editor editor = getSharedPreferences(ROOM_NAME, MODE_PRIVATE).edit();
+        final SharedPreferences.Editor editor = getSharedPreferences(ROOM_NAME, MODE_PRIVATE).edit();
         editor.putString("room_name", room);
         editor.apply();
 
@@ -155,8 +156,20 @@ public class RoomActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
                         editor.putBoolean(code, false);
                         editor.apply();
+
+                        if(room.equals("Living Room")) {
+                            String name = list.get(RecyclerViewItemPosition).first.first.first;
+                            if(name.equals("TV") || name.equals("Chandelier") || name.equals("Light") || name.equals("Fan 1")) {
+                                SharedPreferences preferences20 = getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
+                                ip = preferences20.getString("lr_ip1", "255.255.0");
+                            }
+                            else {
+                                SharedPreferences preferences21 = getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
+                                ip = preferences21.getString("lr_ip2", "255.255.0");
+                            }
+                        }
                         webView.loadUrl("http://" + ip + SEPERATOR + code + "0");
-                        //Toast.makeText(getApplicationContext(), "http://" + ip + SEPERATOR + code + "0", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(), ip, Toast.LENGTH_LONG).show();
 
                         String appl_name = list.get(RecyclerViewItemPosition).first.first.first;
                         String appl_code = list.get(RecyclerViewItemPosition).first.second;
@@ -189,8 +202,20 @@ public class RoomActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
                         editor.putBoolean(code, true);
                         editor.apply();
+
+                        if(room.equals("Living Room")) {
+                            String name = list.get(RecyclerViewItemPosition).first.first.first;
+                            if(name.equals("TV") || name.equals("Chandelier") || name.equals("Light") || name.equals("Fan 1")) {
+                                SharedPreferences preferences20 = getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
+                                ip = preferences20.getString("lr_ip1", "255.255.0");
+                            }
+                            else {
+                                SharedPreferences preferences21 = getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
+                                ip = preferences21.getString("lr_ip2", "255.255.0");
+                            }
+                        }
                         webView.loadUrl("http://" + ip + SEPERATOR + code + "1");
-                        //Toast.makeText(getApplicationContext(), "http://" + ip + SEPERATOR + code + "1", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(), ip, Toast.LENGTH_LONG).show();
 
                         String appl_name = list.get(RecyclerViewItemPosition).first.first.first;
                         String appl_code = list.get(RecyclerViewItemPosition).first.second;
@@ -232,6 +257,11 @@ public class RoomActivity extends AppCompatActivity {
                                 RecyclerViewItemPosition = recyclerView.getChildAdapterPosition(ChildView);
                                 Integer type = list.get(RecyclerViewItemPosition).second;
                                 if(type == 2) {
+                                    if(room.equals("Living Room")) {
+                                        SharedPreferences.Editor editor1 = getSharedPreferences(PREFS_FAN, MODE_PRIVATE).edit();
+                                        editor1.putString("fan_selected", list.get(RecyclerViewItemPosition).first.first.first);
+                                        editor1.apply();
+                                    }
                                     CustomDialog customDialog = new CustomDialog(RoomActivity.this);
                                     customDialog.show();
                                     customDialog.setCanceledOnTouchOutside(false);
@@ -277,7 +307,7 @@ public class RoomActivity extends AppCompatActivity {
                 case "Living Room":
                     addTV("TV", "htv");
                     addChandelier("Chandelier", "hc");
-                    addLight("Light", "hl1");
+                    addLight("Light", "hl");
                     addFan("Fan 1", "hf");
                     addFan("Fan 2", "hf");
                     addLight("LED 1", "hl1");
@@ -287,7 +317,7 @@ public class RoomActivity extends AppCompatActivity {
                     addSocket("Charging Plug", "hc");
                     break;
                 case "Kitchen":
-                    addSocket("RO", "krO");
+                    addSocket("RO", "kro");
                     addLight("Light", "kl1");
                     addFan("Fan", "kf1");
                     addSocket("Charging Plug", "kc1");
