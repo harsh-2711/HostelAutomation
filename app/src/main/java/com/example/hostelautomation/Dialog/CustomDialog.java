@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -55,31 +56,8 @@ public class CustomDialog extends Dialog {
 
         webView = (WebView) findViewById(R.id.dialogWeb);
 
-        SharedPreferences preferences10 = c.getSharedPreferences(ROOM_NAME, MODE_PRIVATE);
-        String room = preferences10.getString("room_name", "Living Room");
-        String code = "";
-
-        switch (room) {
-            case "Living Room":
-                code = "hfs";
-                break;
-            case "Kitchen":
-                code = "kfs";
-                break;
-            case "Master Bedroom":
-                code = "r1fs";
-                break;
-            case "Bedroom":
-                code = "r2fs";
-                break;
-            default:
-                break;
-        }
-
-        SharedPreferences preferences11 = c.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String progress = preferences11.getString("fan_speed" + code, "0");
-        seekBar.setProgress(Integer.valueOf(progress));
-        speedText.setText(progress);
+        LoadPreviousSpeed loadPreviousSpeed = new LoadPreviousSpeed();
+        loadPreviousSpeed.execute();
 
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,30 +94,37 @@ public class CustomDialog extends Dialog {
                 if(room.equals("Living Room")) {
                     SharedPreferences preferences = c.getSharedPreferences(PREFS_FAN, MODE_PRIVATE);
                     String name = preferences.getString("fan_selected", "Fan 1");
-                    //Toast.makeText(getContext(), name, Toast.LENGTH_SHORT).show();
                     if(name.equals("Fan 1")) {
                         SharedPreferences preferences20 = c.getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
                         ip = preferences20.getString("lr_ip1", "255.255.0");
+
+                        SharedPreferences preferences22 = c.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                        String progress = preferences22.getString("fan_speed" + code + "1", "0");
+                        webView.loadUrl("http://" + ip + SEPERATOR + code + progress);
+                        //Toast.makeText(getContext(), "http://" + ip + SEPERATOR + code + progress, Toast.LENGTH_LONG).show();
+                        dismiss();
                     }
                     else {
                         SharedPreferences preferences21 = c.getSharedPreferences(LIVING_ROOM_1, MODE_PRIVATE);
                         ip = preferences21.getString("lr_ip2", "255.255.0");
+
+                        SharedPreferences preferences23 = c.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                        String progress = preferences23.getString("fan_speed" + code + "2", "0");
+                        webView.loadUrl("http://" + ip + SEPERATOR + code + progress);
+                        //Toast.makeText(getContext(), "http://" + ip + SEPERATOR + code + progress, Toast.LENGTH_LONG).show();
+                        dismiss();
                     }
+                } else {
+
+                    SharedPreferences preferences = c.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                    String progress = preferences.getString("fan_speed" + code, "0");
+                    webView.loadUrl("http://" + ip + SEPERATOR + code + progress);
+                    //Toast.makeText(getContext(), "http://" + ip + SEPERATOR + code + progress, Toast.LENGTH_LONG).show();
+                    dismiss();
                 }
 
-                SharedPreferences preferences = c.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                String progress = preferences.getString("fan_speed" + code, "0");
-                webView.loadUrl("http://" + ip + SEPERATOR + code + progress);
-                //Toast.makeText(getContext(), ip, Toast.LENGTH_SHORT).show();
-                dismiss();
             }
         });
-
-        SharedPreferences preferences = c.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        final String speed = preferences.getString("fan_speed", "0");
-
-        speedText.setText(speed);
-        seekBar.setProgress(Integer.valueOf(speed));
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -165,6 +150,17 @@ public class CustomDialog extends Dialog {
                     default:
                         break;
                 }
+                if(room.equals("Living Room")) {
+                    SharedPreferences preferences = c.getSharedPreferences(PREFS_FAN, MODE_PRIVATE);
+                    String name = preferences.getString("fan_selected", "Fan 1");
+                    //Toast.makeText(getContext(), name, Toast.LENGTH_SHORT).show();
+                    if(name.equals("Fan 1")) {
+                        code += "1";
+                    }
+                    else {
+                        code += "2";
+                    }
+                }
                 SharedPreferences.Editor editor = c.getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
                 editor.putString("fan_speed" + code, String.valueOf(progress));
                 editor.apply();
@@ -180,5 +176,58 @@ public class CustomDialog extends Dialog {
 
             }
         });
+    }
+
+    private class LoadPreviousSpeed extends AsyncTask<Void,Void,Void> {
+
+        String progress;
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            SharedPreferences preferences10 = c.getSharedPreferences(ROOM_NAME, MODE_PRIVATE);
+            String room = preferences10.getString("room_name", "Living Room");
+            String code = "";
+
+            switch (room) {
+                case "Living Room":
+                    code = "hfs";
+                    break;
+                case "Kitchen":
+                    code = "kfs";
+                    break;
+                case "Master Bedroom":
+                    code = "r1fs";
+                    break;
+                case "Bedroom":
+                    code = "r2fs";
+                    break;
+                default:
+                    break;
+            }
+
+            if(room.equals("Living Room")) {
+                SharedPreferences preferences = c.getSharedPreferences(PREFS_FAN, MODE_PRIVATE);
+                String name = preferences.getString("fan_selected", "Fan 1");
+                //Toast.makeText(getContext(), name, Toast.LENGTH_SHORT).show();
+                if(name.equals("Fan 1")) {
+                    code += "1";
+                }
+                else {
+                    code += "2";
+                }
+            }
+
+            SharedPreferences preferences11 = c.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+            progress = preferences11.getString("fan_speed" + code, "0");
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            seekBar.setProgress(Integer.valueOf(progress));
+            speedText.setText(progress);
+        }
     }
 }
